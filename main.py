@@ -47,6 +47,63 @@ def naiveComputerTurn(board, computer):
         y = random.randint(0,2)
     placePiece(x,y,board,computer)
 
+def isBoardFull(board):
+    for row in board:
+        if row[0] == '-' or row[1] == '-' or row[2] == '-':
+            return False
+    
+    return True
+
+def evaluateBoard(board):
+    return 1
+
+def minimax(board, depth, maximizingPlayer):
+    if maximizingPlayer:
+        cur = 'x'
+    if not maximizingPlayer:
+        cur = 'o'
+    result = checkWin(board, cur)
+    if result == True and maximizingPlayer:
+        return 1
+    elif result == True and not maximizingPlayer:
+        return -1
+
+    if maximizingPlayer:
+        best = -99999
+        for x in range(3):
+            for y in range(3):
+                if board[y][x] == '-':
+                    score = minimax(board, depth + 1, False)
+                    board[y][x] = '-'
+                    best = max(score, best)
+        return best
+    if not maximizingPlayer:
+        best = 99999
+        for x in range(3):
+            for y in range(3):
+                if board[y][x] == '-':
+                    score = minimax(board, depth + 1, True)
+                    board[y][x] = '-'
+                    best = max(score, best)
+        return best
+
+
+
+
+def computerTurnMiniMax(board, computer):
+    bestScore = -999999999
+    for x in range(3):
+        for y in range(3):
+            if board[y][x] == '-':
+                score = minimax(board, 0, False)
+                board[y][x] = '-'
+                if score > bestScore:
+                    bestScore = score
+                    bestX = x
+                    bestY = y
+    placePiece(bestX,bestY,board,computer)
+    
+
 def horzWin(board, turn):
     for row in board:
         if row[0] == row[1] and row[0] == row[2] and row[0] == turn and row[1] == turn and row[2] == turn:
@@ -89,7 +146,7 @@ def main():
         if turn == human:
             humanTurn(board, human)
         elif turn == computer:
-            naiveComputerTurn(board, computer)
+            computerTurnMiniMax(board, computer)
 
         winner = checkWin(board, turn)
         
