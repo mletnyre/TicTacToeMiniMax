@@ -47,32 +47,29 @@ def naiveComputerTurn(board, computer):
         y = random.randint(0,2)
     placePiece(x,y,board,computer)
 
-def isBoardFull(board):
-    for row in board:
-        if row[0] == '-' or row[1] == '-' or row[2] == '-':
-            return False
-    
-    return True
-
-def evaluateBoard(board):
-    return 1
 
 def minimax(board, depth, maximizingPlayer):
     if maximizingPlayer:
-        cur = 'x'
-    if not maximizingPlayer:
         cur = 'o'
-    result = checkWin(board, cur)
-    if result == True and maximizingPlayer:
-        return 1
-    elif result == True and not maximizingPlayer:
-        return -1
+        oth = 'x'
+    if not maximizingPlayer:
+        cur = 'x'
+        oth = 'o'
 
+    #returns true if cur has a winning 3 in some spot on the board
+    result = checkWin(board, oth)
+    if result == 1 and maximizingPlayer:
+        return -1 #return 1 beacuse this is the best possible outcome
+    elif result == 0 and not maximizingPlayer: 
+        return 1 #return -1 because this is the worst possible outcome
+    elif result == 2: #results == 2 when it is a tie this is a 0 value
+        return 0
     if maximizingPlayer:
         best = -99999
         for x in range(3):
             for y in range(3):
                 if board[y][x] == '-':
+                    board[y][x] = cur
                     score = minimax(board, depth + 1, False)
                     board[y][x] = '-'
                     best = max(score, best)
@@ -82,9 +79,10 @@ def minimax(board, depth, maximizingPlayer):
         for x in range(3):
             for y in range(3):
                 if board[y][x] == '-':
+                    board[y][x] = cur
                     score = minimax(board, depth + 1, True)
                     board[y][x] = '-'
-                    best = max(score, best)
+                    best = min(score, best)
         return best
 
 
@@ -92,9 +90,12 @@ def minimax(board, depth, maximizingPlayer):
 
 def computerTurnMiniMax(board, computer):
     bestScore = -999999999
+    #look at every possible move and try it
     for x in range(3):
         for y in range(3):
             if board[y][x] == '-':
+                #get the score from this board
+                board[y][x] = computer
                 score = minimax(board, 0, False)
                 board[y][x] = '-'
                 if score > bestScore:
@@ -103,6 +104,14 @@ def computerTurnMiniMax(board, computer):
                     bestY = y
     placePiece(bestX,bestY,board,computer)
     
+
+def tie(board):
+    for x in range(3):
+        for y in range(3):
+            if board[y][x] == '-':
+                return False
+    return True
+
 
 def horzWin(board, turn):
     for row in board:
@@ -125,7 +134,14 @@ def diagWin(board, turn):
     return False
 
 def checkWin(board, turn):
-    return horzWin(board, turn) or virWin(board, turn) or diagWin(board, turn)
+    if (horzWin(board, turn) or virWin(board, turn) or diagWin(board, turn)) and turn == 'o':
+        return 0
+    elif (horzWin(board, turn) or virWin(board, turn) or diagWin(board, turn)) and turn == 'x':
+        return 1
+    elif tie(board):
+        return 2
+    
+
 
 
 def main():
@@ -136,7 +152,8 @@ def main():
     ]
     human = 'x'
     computer = 'o'
-    turn = computer
+    turn = computer #start with computer turn since we switch the turn at the begining of each loop
+
     winner = False
 
     while(not winner):
@@ -149,8 +166,13 @@ def main():
             computerTurnMiniMax(board, computer)
 
         winner = checkWin(board, turn)
-        
-    print("we found a winner")
+
+    if winner == 1 or winner == 0:
+        print("we found a winner")
+    elif winner == 3:
+        print("TIE")
+
+
     printBoard(board)
 
 if __name__ == "__main__":
