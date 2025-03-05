@@ -48,7 +48,7 @@ def naiveComputerTurn(board, computer):
     placePiece(x,y,board,computer)
 
 
-def minimax(board, depth, maximizingPlayer):
+def minimax(board,maximizingPlayer):
     if maximizingPlayer:
         cur = 'o'
         oth = 'x'
@@ -70,7 +70,7 @@ def minimax(board, depth, maximizingPlayer):
             for y in range(3):
                 if board[y][x] == '-':
                     board[y][x] = cur
-                    score = minimax(board, depth + 1, False)
+                    score = minimax(board, False)
                     board[y][x] = '-'
                     best = max(score, best)
         return best
@@ -80,7 +80,7 @@ def minimax(board, depth, maximizingPlayer):
             for y in range(3):
                 if board[y][x] == '-':
                     board[y][x] = cur
-                    score = minimax(board, depth + 1, True)
+                    score = minimax(board, True)
                     board[y][x] = '-'
                     best = min(score, best)
         return best
@@ -96,7 +96,7 @@ def computerTurnMiniMax(board, computer):
             if board[y][x] == '-':
                 #get the score from this board
                 board[y][x] = computer
-                score = minimax(board, 0, False)
+                score = minimax(board, False)
                 board[y][x] = '-'
                 if score > bestScore:
                     bestScore = score
@@ -140,9 +140,6 @@ def checkWin(board, turn):
         return 1
     elif tie(board):
         return 2
-    
-
-
 
 def main():
     board = [
@@ -169,7 +166,7 @@ def main():
 
     if winner == 1 or winner == 0:
         print("we found a winner")
-    elif winner == 3:
+    elif winner == 2:
         print("TIE")
 
 
